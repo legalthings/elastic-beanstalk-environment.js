@@ -9,7 +9,7 @@ Show and update an ElasticBeanstalk environment from the command line or a node.
 
 #### Installation
 
-    npm install eb-env -g
+    npm install elastic-beanstalk-environment -g
    
 #### Usage
    
@@ -100,7 +100,7 @@ _Global options are also available._
 
 ```js
 var AWS = require('aws-sdk');
-var EBEnv = require('eb-env');
+var EBEnv = require('elastic-beanstalk-environment');
 
 new EBEnv(AWS, 'my-eb-app', 'some-env').load(function(err, env) {
   if (err) throw err;
@@ -114,7 +114,7 @@ new EBEnv(AWS, 'my-eb-app', 'some-env').load(function(err, env) {
 
 ```js
 var AWS = require('aws-sdk');
-var EBEnv = require('eb-env');
+var EBEnv = require('elastic-beanstalk-environment');
 
 var env = new EBEnv(AWS, 'my-eb-app', 'some-env');
 
