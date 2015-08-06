@@ -67,15 +67,15 @@ module.exports = function(AWS, application, environment) {
   function varsToOptions() {
     var settings = [];
     var remove = [];
-  
-    for (key in this.vars) {
-      if (!vars[key] === undefined) continue;
-      
-      if (this.vars[key] !== null) {
+
+    for (key in self.vars) {
+      if (self.vars[key] === undefined) continue;
+
+      if (self.vars[key] !== null) {
         settings.push({
           Namespace: 'aws:elasticbeanstalk:application:environment',
           OptionName: key,
-          Value: vars[key]
+          Value: self.vars[key]
         });
       } else {
         remove.push({
@@ -84,7 +84,7 @@ module.exports = function(AWS, application, environment) {
         });
       }
     }
-    
+
     return {settings: settings, remove: remove};
   }
   
