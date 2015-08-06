@@ -1,8 +1,11 @@
 # eb-env.js
 
-Show and update an ElasticBeanstalk environment from a node.js application or the command line.
+Show and update an ElasticBeanstalk environment from the command line or a node.js application.
 
-## CLI
+* [Command line](#command-line)
+* [Library](#library)
+
+## Command line
 
 #### Installation
 
