@@ -1,0 +1,103 @@
+#!/usr/bin/env node
+
+var program = require('commander');
+var verbose = require('std-verbose');
+var dotty = require('dotty');
+var cast = require('std-verbose/cast');
+
+function getEBEnv(settings) {
+  var AWS = require('aws-sdk');
+  var EBEnv = require('..');
+
+  if (!settings.application && !settings.environment) exitOnError("Elastic Beanstalk application and environment not specified");
+  if (!settings.application) exitOnError("Elastic Beanstalk application not specified");
+  if (!settings.environment) exitOnError("Elastic Beanstalk environment not specified");
+
+  if (settings.profile) AWS.config.credentials = new AWS.SharedIniFileCredentials({profile: settings.profile});
+  if (settings.region) AWS.config.region = settings.region;
+
+  return new EBEnv(AWS, settings.application, settings.environment);
+}
+
+function exitOnError(err) {
+  verbose.error(err.message || err);
+  process.exit(1);
+}
+
+function splitVars(pairs) {
+  var vars = {};
+  
+  pairs.forEach(function(pair) {
+    var pos = pair.indexOf('=');
+    if (pos <= 0) return verbose.warn("Invalid key=value pair: '" + pair + "'");
+    
+    vars[pair.slice(0, pos)] = pos + 1 < pair.length ? pair.slice(pos+1) : null;
+  });
+  
+  return vars;
+}
+
+program
+  .version('0.1.0')
+  .option('-q, --quiet', 'output fatal errors only', function() {
+    verbose.minLevel = verbose.ERROR;
+  })
+  .option('--no-color', 'no colors for verbose output')
+  .option('-r, --region [region]', 'AWS region')
+  .option('--profile [profile]', 'AWS profile')
+  .option('-a, --application [name]', 'Elastic Beanstalk application name')
+  .option('-e, --environment [name]', 'Elastic Beanstalk environment name');
+  
+program  
+  .command('show [setting]')
+  .description('Show environment setting(s) and status')
+  .action(function(setting, options) {
+    getEBEnv(options.parent).load(function(err, ebenv) {
+      if (err) exitOnError(err);
+      
+      var out = setting ? dotty.get(ebenv, setting) : ebenv.info();
+      process.stdout.write(cast(out) + '\n');
+    });
+  });
+  
+program  
+  .command('update [KEY=VALUE...]')
+  .description('Update environment setting(s)')
+  .option('-w, --wait [seconds]', 'Wait max X seconds for the update to complete')
+  .option('--version [label]', 'Deploy a version')
+  .option('--description [description]', 'Change the environment description')
+  .option('--config [template_name]', 'Change the environment configuration using a template')
+  .option('--platform [name]', 'Change the platform (aka solution stack)')
+  .option('--show', 'Show environment after update')
+  .action(function(pairs, options) {
+    var ebenv = getEBEnv(options.parent);
+    
+    var settings = ['version', 'description', 'config', 'platform'];
+    settings.forEach(function(setting) {
+      if (typeof options[setting] === 'string') ebenv[setting] = options[setting];
+    });
+    
+    if (pairs.length > 0) ebenv.setVars(splitVars(pairs));
+    
+    ebenv.update(function(err) {
+      if (err) exitOnError(err);
+      
+      verbose.info('Updating environment ' + ebenv.name + '\'s configuration settings.');
+      
+      options.wait && ebenv.wait(options.wait, function(err, result) {
+        if (err) exitOnError(err);
+        
+        if (!result) {
+          verbose.debug('Timeout after ' + options.wait + ' seconds');
+          if (options.show) process.stdout.write(cast(ebenv.info()) + '\n');
+          process.exit(124); // Timeout
+        }
+        
+        verbose(result.message, result.success ? verbose.INFO : verbose.WARN);
+        if (options.show) process.stdout.write(cast(ebenv.info()) + '\n');
+      });
+    });
+  });
+  
+program.parse(process.argv);
+

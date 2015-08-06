@@ -1,0 +1,32 @@
+{
+  "name": "eb-env",
+  "version": "0.0.0",
+  "description": "Show and update Elastic Beanstalk environment",
+  "main": "index.js",
+  "bin": {
+    "eb-env": "./bin/eb-env"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/legalthings/eb-setenv.js.git"
+  },
+  "keywords": [
+    "aws",
+    "elastic-beanstalk",
+    "cli"
+  ],
+  "author": "Arnold Daniels <arnold@jasny.net>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/legalthings/eb-setenv.js/issues"
+  },
+  "homepage": "https://github.com/legalthings/eb-setenv.js#readme",
+  "dependencies": {
+    "aws-sdk": "^2.1.43",
+    "commander": "^2.8.1",
+    "dotty": "0.0.2",
+    "install": "^0.1.8",
+    "npm": "^2.13.3",
+    "std-verbose": "^0.2.1"
+  }
+}
