@@ -1,6 +1,6 @@
 {
   "name": "elastic-beanstalk-environment",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Show and update an Elastic Beanstalk environment",
   "main": "index.js",
   "bin": {
