@@ -118,7 +118,7 @@ module.exports = function(AWS, application, environment) {
     }
   
     describeSettings(function(err, info) {
-      if (!err) {
+      if (info && !err) {
         self.vars = info.vars;
         self._https = info.https;
         
@@ -133,7 +133,7 @@ module.exports = function(AWS, application, environment) {
     });
   
     describeEnvironment(function(err, info) {
-      if (!err) setInfo(info);
+      if (info && !err) setInfo(info);
       done(de, err);
     });
   }
